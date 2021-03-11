@@ -1,14 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
 
 var access_token = '';
 
+app.set('view engine', 'ejs');
+
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 app.get('/', (req, res) => {
-    res.render('pages/index', {client_id: CLIENT_ID});
+    res.render('index', {client_id: CLIENT_ID});
 });
 
 app.get('/github/callback', (req, res) => {
@@ -23,6 +26,9 @@ app.get('/github/callback', (req, res) => {
     }).then((response) => {
         access_token = response.data.access_token;
         res.redirect('/success');
+    })
+    .catch((error) => {
+        console.log(error);
     });
 });
 
@@ -31,10 +37,13 @@ app.get('/success', (req, res) => {
         method: "get",
         url: "https://api.github.com/user",
         headers: {
-            Authorization: 'token' + access_token
+            Authorization: 'token ' + access_token
         }
     }).then((response) => {
-        res.render('pages/success', { userData: response.data });
+        res.render('success', { userData: response.data });
+    })
+    .catch((error) => {
+        console.log(error);
     });
 });
 
