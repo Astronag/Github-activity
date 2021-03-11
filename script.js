@@ -4,6 +4,7 @@ const axios = require('axios');
 const app = express();
 
 var access_token = '';
+var username = '';
 
 app.set('view engine', 'ejs');
 
@@ -40,10 +41,33 @@ app.get('/success', (req, res) => {
             Authorization: 'token ' + access_token
         }
     }).then((response) => {
-        res.render('success', { userData: response.data });
+        username = response.data.login;
+        res.redirect('/events');
     })
     .catch((error) => {
         console.log(error);
+    });
+});
+
+app.get('/events', (req, res) => {
+    axios({
+        method: "get",
+        url: "https://api.github.com/users/" + username + "/events",
+        headers: {
+            Authorization: 'token ' + access_token
+        }
+    }).then((response) => {
+        userData = response.data;
+        res.render('success');
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+});
+
+app.get('/userData', (req, res) => {
+    res.status("200").json({
+        userData: userData
     });
 });
 
